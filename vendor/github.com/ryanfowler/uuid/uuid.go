@@ -58,8 +58,14 @@ func NewV3(namespace UUID, name []byte) UUID {
 // NewV4 generates and returns a new v4 UUID using random bytes, as per RFC
 // 4122. If an error occurs while reading from "crypto/rand", it is returned.
 func NewV4() (UUID, error) {
+	return NewV4FromRand(rand.Reader)
+}
+
+// NewV4FromRand generates and returns a new v4 UUID using the random bytes
+// returned from the provided io.Reader.
+func NewV4FromRand(r io.Reader) (UUID, error) {
 	var u UUID
-	if _, err := io.ReadFull(rand.Reader, u[:]); err != nil {
+	if _, err := io.ReadFull(r, u[:]); err != nil {
 		return u, err
 	}
 	setVersion(&u, 4)
@@ -77,6 +83,12 @@ func NewV5(namespace UUID, name []byte) UUID {
 // per RFC 4122. If an error occurs while reading from "crypto/rand", it is
 // returned.
 func NewV7(now time.Time) (UUID, error) {
+	return NewV7FromRand(now, rand.Reader)
+}
+
+// NewV7FromRand uses the provided timestamp and random io.Reader to return a
+// new V7 UUID, as per RFC 4122.
+func NewV7FromRand(now time.Time, r io.Reader) (UUID, error) {
 	var u UUID
 	ms := uint64(now.UnixMilli())
 	u[0] = byte(ms >> 40)
@@ -85,7 +97,7 @@ func NewV7(now time.Time) (UUID, error) {
 	u[3] = byte(ms >> 16)
 	u[4] = byte(ms >> 8)
 	u[5] = byte(ms)
-	if _, err := io.ReadFull(rand.Reader, u[6:]); err != nil {
+	if _, err := io.ReadFull(r, u[6:]); err != nil {
 		return u, err
 	}
 	setVersion(&u, 7)
@@ -191,10 +203,18 @@ func (u *UUID) UnmarshalText(text []byte) error {
 	return nil
 }
 
+// IsZero returns true if the UUID cotains all zeros (the default value).
+func (u UUID) IsZero() bool {
+	return u == UUID{}
+}
+
 // Value implements the sql driver Valuer interface. It returns a formatted byte
 // slice representation of the UUID.
 func (u UUID) Value() (driver.Value, error) {
-	return u.Bytes(), nil
+	if u.IsZero() {
+		return nil, nil
+	}
+	return u.String(), nil
 }
 
 // Scan implements the sql Scanner interface. It reads the UUID from src into u.
@@ -202,6 +222,7 @@ func (u *UUID) Scan(src interface{}) error {
 	var id UUID
 	var err error
 	switch v := src.(type) {
+	case nil:
 	case []byte:
 		id, err = Parse(v)
 	case string:
