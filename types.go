@@ -14,7 +14,7 @@ type GA4Client struct {
 type ClientID string
 type Event struct {
 	// Required. The name for the event.
-	Name string `json:"name"`
+	Name string `json:"event_name"`
 	// Optional. A unique identifier for a user
 	// Optional. The parameters for the event.
 	// engagement_time_msec/session_id
