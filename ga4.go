@@ -28,7 +28,7 @@ func NewGA4Client(measurementID, apiSecret string, debug bool) (*GA4Client, erro
 }
 
 // SendEvent sends one event to Google Analytics
-func (g *GA4Client) SendEvent(event Event, clientID string) error {
+func (g *GA4Client) SendEvent(event Event, clientID ClientID) error {
 	query := url.Values{}
 	query.Add("api_secret", g.apiSecret)
 	query.Add("measurement_id", g.measurementID)
@@ -49,7 +49,7 @@ func (g *GA4Client) SendEvent(event Event, clientID string) error {
 	event.Params["version"] = VERSION
 
 	payload := Payload{
-		ClientID:        clientID,
+		ClientID:        string(clientID),
 		TimestampMicros: time.Now().UnixMicro(),
 		Events:          []Event{event},
 	}

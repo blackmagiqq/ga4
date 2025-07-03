@@ -11,6 +11,7 @@ type GA4Client struct {
 	debug         bool         // send events for validation, used for debug
 }
 
+type ClientID string
 type Event struct {
 	// Required. The name for the event.
 	Name string `json:"name"`

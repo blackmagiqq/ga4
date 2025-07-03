@@ -17,8 +17,10 @@ import (
 )
 
 func main() {
-    client := ga4.NewGA4Client("G-XXXXXXXXXX", "xxxxxxxxxxxxxxxxxxxxx", "", true)
+    client := ga4.NewGA4Client("G-XXXXXXXXXX", "xxxxxxxxxxxxxxxxxxxxx", true)
+    cid := ClientID("xxx")
     err := client.SendEvent(
+        ClientID: cid,
         ga4.Event{
             Name: "test_event",
             Params: map[string]string{
