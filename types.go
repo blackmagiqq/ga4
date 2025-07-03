@@ -7,7 +7,6 @@ import (
 type GA4Client struct {
 	apiSecret     string       // Measurement Protocol API secret value
 	measurementID string       // MEASUREMENT ID, G-XXXXXXXXXX
-	userID        string       // A unique identifier for a user
 	httpClient    *http.Client // http client session
 	debug         bool         // send events for validation, used for debug
 }
@@ -15,6 +14,7 @@ type GA4Client struct {
 type Event struct {
 	// Required. The name for the event.
 	Name string `json:"name"`
+	// Optional. A unique identifier for a user
 	// Optional. The parameters for the event.
 	// engagement_time_msec/session_id
 	Params map[string]interface{} `json:"params,omitempty"`

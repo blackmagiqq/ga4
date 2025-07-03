@@ -5,13 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"math/rand"
 	"net/http"
 	"net/url"
 	"runtime"
 	"time"
-
-	"github.com/ryanfowler/uuid"
 )
 
 // Send measurement data to the GA4 server
@@ -19,21 +16,10 @@ import (
 // https://developers.google.com/analytics/devguides/collection/protocol/ga4
 
 // NewGA4Client creates a new GA4Client object with the measurementID and apiSecret.
-func NewGA4Client(measurementID, apiSecret, userID string, debug bool) (*GA4Client, error) {
-	// If userID is not provided, generate a new one
-	if userID == "" {
-		u, err := uuid.NewV7(time.Now())
-		if err != nil {
-			return nil, err
-		}
-
-		userID = u.String()
-	}
-
+func NewGA4Client(measurementID, apiSecret string, debug bool) (*GA4Client, error) {
 	return &GA4Client{
 		measurementID: measurementID,
 		apiSecret:     apiSecret,
-		userID:        userID,
 		httpClient: &http.Client{
 			Timeout: 5 * time.Second,
 		},
@@ -42,7 +28,7 @@ func NewGA4Client(measurementID, apiSecret, userID string, debug bool) (*GA4Clie
 }
 
 // SendEvent sends one event to Google Analytics
-func (g *GA4Client) SendEvent(event Event) error {
+func (g *GA4Client) SendEvent(event Event, clientID string) error {
 	query := url.Values{}
 	query.Add("api_secret", g.apiSecret)
 	query.Add("measurement_id", g.measurementID)
@@ -63,8 +49,7 @@ func (g *GA4Client) SendEvent(event Event) error {
 	event.Params["version"] = VERSION
 
 	payload := Payload{
-		ClientID:        fmt.Sprintf("%d.%d", rand.Int31(), time.Now().Unix()),
-		UserID:          g.userID,
+		ClientID:        clientID,
 		TimestampMicros: time.Now().UnixMicro(),
 		Events:          []Event{event},
 	}
