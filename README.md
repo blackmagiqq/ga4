@@ -13,7 +13,7 @@ package main
 
 import (
     "fmt"
-    "github.com/ad/ga4"
+    "github.com/blackmagiqq/ga4"
 )
 
 func main() {
