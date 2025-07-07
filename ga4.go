@@ -66,7 +66,7 @@ func (g *GA4Client) SendEvent(event Event, clientID ClientID) error {
 	body := bytes.NewReader(bs)
 	res, err := g.httpClient.Post(uri, "application/json", body)
 	if err != nil {
-		return fmt.Errorf("%s", "request GA4 failed")
+		return fmt.Errorf("%s: %w", "request GA4 failed", err)
 	}
 
 	if res.StatusCode >= 300 {
